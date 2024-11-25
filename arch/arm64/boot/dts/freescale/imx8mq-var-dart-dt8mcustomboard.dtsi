@@ -87,20 +87,32 @@
 		clock-frequency = <100000000>;
 	};
 	
+	codec_dummy: codec_dummy {
+		compatible = "asoc,snd-soc-dummy";
+		#sound-dai-cells = <0>;
+		status = "okay";
+	};
 
 	
 	//DAC
-	sound-ak4458 {
+	sound-sai2 {
 		compatible = "simple-audio-card";
-		simple-audio-card,name = "ak4458-audio";
+		simple-audio-card,name = "sai2";
 		simple-audio-card,format = "i2s";
 		simple-audio-card,bitclock-master = <&cpu_dai>;
 		simple-audio-card,frame-master = <&cpu_dai>;
 		simple-audio-card,mclk-fs = <256>;
+		status = "okay";
 		
 		// CPU DAI
 		cpu_dai: simple-audio-card,cpu {
-			sound-dai = <&sai2>;
+			sound-dai = <&sai2 0>;
+			dai-tdm-slot-num = <8>;
+			dai-tdm-slot-width = <32>;
+		};
+
+		snd_codec: simple-audio-card,codec {
+			sound-dai = <&codec_dummy>;
 		};
 	};
 	
@@ -664,6 +676,12 @@
     assigned-clocks = <&clk IMX8MQ_CLK_SAI2>;
     assigned-clock-parents = <&clk IMX8MQ_AUDIO_PLL1_OUT>;
     assigned-clock-rates = <24576000>;
+	clocks = <&clk IMX8MQ_CLK_SAI2_IPG>, <&clk IMX8MQ_CLK_DUMMY>,
+		<&clk IMX8MQ_CLK_SAI2_ROOT>, <&clk IMX8MQ_CLK_DUMMY>,
+		<&clk IMX8MQ_CLK_DUMMY>, <&clk IMX8MQ_AUDIO_PLL1_OUT>,
+		<&clk IMX8MQ_AUDIO_PLL2_OUT>;
+    clock-names = "bus", "mclk0", "mclk1", "mclk2", "mclk3", "pll8k", "pll11k";
+	fsl,sai-mclk-direction-output;
     status = "okay";
 };
 

@@ -7,6 +7,14 @@
 // Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
 //         Liam Girdwood <lrg@slimlogic.co.uk>
 
+/*
+MAM: modifications reference: 
+https://community.nxp.com/t5/i-MX-Processors/imx8mm-sai-and-alsa-issues/m-p/1582388
+https://patchwork.kernel.org/project/alsa-devel/patch/5652E348.8080002@invoxia.com/
+*/
+
+#include <linux/module.h>
+#include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/export.h>
 #include <linux/math.h>
@@ -239,9 +247,18 @@ static int snd_soc_dummy_probe(struct platform_device *pdev)
 	return ret;
 }
 
+#ifdef CONFIG_OF
+static const struct of_device_id soc_dummy_device_id[] = {
+	{ .compatible = "asoc,snd-soc-dummy" },
+	{}
+};
+MODULE_DEVICE_TABLE(of, soc_dummy_device_id);
+#endif
+
 static struct platform_driver soc_dummy_driver = {
 	.driver = {
 		.name = "snd-soc-dummy",
+		.of_match_table = of_match_ptr(soc_dummy_device_id),
 	},
 	.probe = snd_soc_dummy_probe,
 };
